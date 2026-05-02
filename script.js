@@ -3,6 +3,12 @@ const matchCount = document.querySelector("#matchCount");
 const moveCount = document.querySelector("#moveCount");
 const roundMessage = document.querySelector("#roundMessage");
 const resetButton = document.querySelector("#resetButton");
+const bonusButton = document.querySelector("#bonusButton");
+const rouletteOverlay = document.querySelector("#rouletteOverlay");
+const rouletteClose = document.querySelector("#rouletteClose");
+const rouletteWheel = document.querySelector("#rouletteWheel");
+const rouletteResult = document.querySelector("#rouletteResult");
+const spinButton = document.querySelector("#spinButton");
 
 const colorInfo = {
   red: { label: "빨강", message: "빨강 카드 짝을 찾았어요!", image: "assets/card-red.png" },
@@ -35,6 +41,10 @@ let secondCard = null;
 let lockBoard = false;
 let foundPairs = 0;
 let moves = 0;
+let rouletteRotation = 0;
+let isRouletteSpinning = false;
+
+const roulettePrizes = ["문구류", "책", "장난감", "퍼즐", "생활용품", "스티커", "액세서리", "간식"];
 
 function setRoundMessage(message) {
   if (roundMessage) {
@@ -171,5 +181,58 @@ function checkWin() {
   }
 }
 
+function openRoulette() {
+  rouletteOverlay.classList.remove("is-hidden");
+  rouletteOverlay.setAttribute("aria-hidden", "false");
+  rouletteResult.textContent = "버튼을 눌러 선물을 뽑아보세요.";
+  spinButton.focus();
+}
+
+function closeRoulette() {
+  if (isRouletteSpinning) {
+    return;
+  }
+
+  rouletteOverlay.classList.add("is-hidden");
+  rouletteOverlay.setAttribute("aria-hidden", "true");
+  bonusButton.focus();
+}
+
+function spinRoulette() {
+  if (isRouletteSpinning) {
+    return;
+  }
+
+  const prizeIndex = Math.floor(Math.random() * roulettePrizes.length);
+  const sliceAngle = 360 / roulettePrizes.length;
+  const targetCenter = prizeIndex * sliceAngle + sliceAngle / 2;
+  const extraTurns = 5 + Math.floor(Math.random() * 3);
+
+  isRouletteSpinning = true;
+  spinButton.disabled = true;
+  rouletteResult.textContent = "룰렛이 돌고 있어요.";
+  rouletteRotation += extraTurns * 360 + (360 - targetCenter);
+  rouletteWheel.style.transform = `rotate(${rouletteRotation}deg)`;
+
+  window.setTimeout(() => {
+    isRouletteSpinning = false;
+    spinButton.disabled = false;
+    rouletteResult.textContent = `${roulettePrizes[prizeIndex]} 당첨!`;
+  }, 3400);
+}
+
 resetButton.addEventListener("click", startGame);
+bonusButton.addEventListener("click", openRoulette);
+rouletteClose.addEventListener("click", closeRoulette);
+spinButton.addEventListener("click", spinRoulette);
+rouletteOverlay.addEventListener("click", (event) => {
+  if (event.target === rouletteOverlay) {
+    closeRoulette();
+  }
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !rouletteOverlay.classList.contains("is-hidden")) {
+    closeRoulette();
+  }
+});
 startGame();
