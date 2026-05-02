@@ -12,6 +12,7 @@ const rouletteClose = document.querySelector("#rouletteClose");
 const rouletteWheel = document.querySelector("#rouletteWheel");
 const rouletteResult = document.querySelector("#rouletteResult");
 const spinButton = document.querySelector("#spinButton");
+const backgroundMusic = document.querySelector("#backgroundMusic");
 
 const colorInfo = {
   red: { label: "빨강", message: "빨강 카드 짝을 찾았어요!", image: "assets/card-red.png" },
@@ -49,8 +50,10 @@ let rouletteRotation = 0;
 let isRouletteSpinning = false;
 let rouletteAudioContext = null;
 let rouletteSoundTimer = null;
+let hasStartedBackgroundMusic = false;
 
 const maxMoves = 10;
+const backgroundMusicVolume = 0.16;
 const rouletteSpinDuration = 3400;
 const roulettePrizes = [
   "예수님 카드 1장",
@@ -73,6 +76,40 @@ function setRoundMessage(message) {
   if (roundMessage) {
     roundMessage.textContent = message;
   }
+}
+
+function startBackgroundMusic() {
+  if (!backgroundMusic || hasStartedBackgroundMusic) {
+    return;
+  }
+
+  hasStartedBackgroundMusic = true;
+  backgroundMusic.volume = backgroundMusicVolume;
+
+  const playPromise = backgroundMusic.play();
+
+  if (playPromise) {
+    playPromise.then(removeBackgroundMusicListeners).catch(() => {
+      hasStartedBackgroundMusic = false;
+    });
+    return;
+  }
+
+  if (!backgroundMusic.paused) {
+    removeBackgroundMusicListeners();
+  }
+}
+
+function prepareBackgroundMusic() {
+  ["pointerdown", "touchstart", "keydown"].forEach((eventName) => {
+    document.addEventListener(eventName, startBackgroundMusic);
+  });
+}
+
+function removeBackgroundMusicListeners() {
+  ["pointerdown", "touchstart", "keydown"].forEach((eventName) => {
+    document.removeEventListener(eventName, startBackgroundMusic);
+  });
 }
 
 function shuffle(items) {
@@ -370,4 +407,5 @@ document.addEventListener("keydown", (event) => {
     closeRoulette();
   }
 });
+prepareBackgroundMusic();
 startGame();
