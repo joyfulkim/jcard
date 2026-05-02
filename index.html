@@ -53,6 +53,15 @@
       </section>
     </main>
 
+    <section class="result-overlay is-hidden" id="resultOverlay" aria-hidden="true">
+      <div class="result-modal" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+        <h2 id="resultTitle">10번 뒤집기가 끝났어요!</h2>
+        <p class="result-count">찾은 짝: <strong id="finalMatchCount">0</strong>짝</p>
+        <p class="result-guide">확인 후 다시 섞기 버튼을 눌러 새 게임을 시작해 주세요.</p>
+        <button class="result-confirm-button" id="resultConfirmButton" type="button">확인</button>
+      </div>
+    </section>
+
     <section class="roulette-overlay is-hidden" id="rouletteOverlay" aria-hidden="true">
       <div class="roulette-modal" role="dialog" aria-modal="true" aria-labelledby="rouletteTitle">
         <button class="roulette-close" id="rouletteClose" type="button" aria-label="룰렛 닫기">×</button>

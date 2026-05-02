@@ -4,6 +4,9 @@ const moveCount = document.querySelector("#moveCount");
 const roundMessage = document.querySelector("#roundMessage");
 const resetButton = document.querySelector("#resetButton");
 const bonusButton = document.querySelector("#bonusButton");
+const resultOverlay = document.querySelector("#resultOverlay");
+const finalMatchCount = document.querySelector("#finalMatchCount");
+const resultConfirmButton = document.querySelector("#resultConfirmButton");
 const rouletteOverlay = document.querySelector("#rouletteOverlay");
 const rouletteClose = document.querySelector("#rouletteClose");
 const rouletteWheel = document.querySelector("#rouletteWheel");
@@ -39,11 +42,13 @@ const cardColors = [
 let firstCard = null;
 let secondCard = null;
 let lockBoard = false;
+let gameStopped = false;
 let foundPairs = 0;
 let moves = 0;
 let rouletteRotation = 0;
 let isRouletteSpinning = false;
 
+const maxMoves = 10;
 const roulettePrizes = [
   "예수님 카드 1장",
   "예수님 카드 2장",
@@ -126,10 +131,12 @@ function startGame() {
   firstCard = null;
   secondCard = null;
   lockBoard = false;
+  gameStopped = false;
   foundPairs = 0;
   moves = 0;
   matchCount.textContent = "0";
   moveCount.textContent = "0";
+  hideResultPopup();
   setRoundMessage("같은 색 예수님 카드를 찾아보세요!");
 
   makeDeck().forEach((cardData) => {
@@ -138,7 +145,7 @@ function startGame() {
 }
 
 function flipCard(card) {
-  if (lockBoard || card === firstCard || card.classList.contains("is-found")) {
+  if (gameStopped || lockBoard || card === firstCard || card.classList.contains("is-found")) {
     return;
   }
 
@@ -168,6 +175,7 @@ function checkForMatch() {
     matchCount.textContent = String(foundPairs);
     setRoundMessage(colorInfo[firstCard.dataset.color].message);
     clearTurn();
+    checkMoveLimit();
     checkWin();
     return;
   }
@@ -182,6 +190,7 @@ function checkForMatch() {
     secondCard.classList.remove("is-open", "is-wrong");
     clearTurn();
     lockBoard = false;
+    checkMoveLimit();
   }, 820);
 }
 
@@ -194,6 +203,39 @@ function checkWin() {
   if (foundPairs === cardColors.length / 2) {
     setRoundMessage(`색깔 짝을 다 찾았어요! ${moves}번 만에 성공!`);
   }
+}
+
+function checkMoveLimit() {
+  if (moves >= maxMoves && !gameStopped) {
+    stopGame();
+  }
+}
+
+function stopGame() {
+  gameStopped = true;
+  lockBoard = true;
+  clearTurn();
+  board.querySelectorAll(".card").forEach((card) => {
+    card.disabled = true;
+  });
+  showResultPopup();
+}
+
+function showResultPopup() {
+  finalMatchCount.textContent = String(foundPairs);
+  resultOverlay.classList.remove("is-hidden");
+  resultOverlay.setAttribute("aria-hidden", "false");
+  resultConfirmButton.focus();
+}
+
+function hideResultPopup() {
+  resultOverlay.classList.add("is-hidden");
+  resultOverlay.setAttribute("aria-hidden", "true");
+}
+
+function confirmResultPopup() {
+  hideResultPopup();
+  resetButton.focus();
 }
 
 function openRoulette() {
@@ -237,6 +279,7 @@ function spinRoulette() {
 }
 
 resetButton.addEventListener("click", startGame);
+resultConfirmButton.addEventListener("click", confirmResultPopup);
 bonusButton.addEventListener("click", openRoulette);
 rouletteClose.addEventListener("click", closeRoulette);
 spinButton.addEventListener("click", spinRoulette);
