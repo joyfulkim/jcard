@@ -44,7 +44,22 @@ let moves = 0;
 let rouletteRotation = 0;
 let isRouletteSpinning = false;
 
-const roulettePrizes = ["문구류", "책", "장난감", "퍼즐", "생활용품", "스티커", "액세서리", "간식"];
+const roulettePrizes = [
+  "예수님 카드 1장",
+  "예수님 카드 2장",
+  "예수님 카드 3장",
+  "예수님 카드 1장",
+  "한번 더",
+  "예수님 카드 2장",
+  "예수님 카드 1장",
+  "예수님 카드 3장",
+  "예수님 카드 2장",
+  "노란색 카드 1장",
+  "예수님 카드 1장",
+  "예수님 카드 3장",
+  "예수님 카드 2장",
+  "한번 더",
+];
 
 function setRoundMessage(message) {
   if (roundMessage) {
@@ -205,7 +220,7 @@ function spinRoulette() {
 
   const prizeIndex = Math.floor(Math.random() * roulettePrizes.length);
   const sliceAngle = 360 / roulettePrizes.length;
-  const targetCenter = prizeIndex * sliceAngle + sliceAngle / 2;
+  const targetCenter = prizeIndex * sliceAngle;
   const extraTurns = 5 + Math.floor(Math.random() * 3);
 
   isRouletteSpinning = true;
