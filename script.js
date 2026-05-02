@@ -36,6 +36,12 @@ let lockBoard = false;
 let foundPairs = 0;
 let moves = 0;
 
+function setRoundMessage(message) {
+  if (roundMessage) {
+    roundMessage.textContent = message;
+  }
+}
+
 function shuffle(items) {
   return [...items].sort(() => Math.random() - 0.5);
 }
@@ -99,7 +105,7 @@ function startGame() {
   moves = 0;
   matchCount.textContent = "0";
   moveCount.textContent = "0";
-  roundMessage.textContent = "같은 색 예수님 카드를 찾아보세요!";
+  setRoundMessage("같은 색 예수님 카드를 찾아보세요!");
 
   makeDeck().forEach((cardData) => {
     board.append(makeCard(cardData));
@@ -115,7 +121,7 @@ function flipCard(card) {
 
   if (!firstCard) {
     firstCard = card;
-    roundMessage.textContent = "한 장 더 뒤집어 보세요.";
+    setRoundMessage("한 장 더 뒤집어 보세요.");
     return;
   }
 
@@ -135,14 +141,14 @@ function checkForMatch() {
     secondCard.disabled = true;
     foundPairs += 1;
     matchCount.textContent = String(foundPairs);
-    roundMessage.textContent = colorInfo[firstCard.dataset.color].message;
+    setRoundMessage(colorInfo[firstCard.dataset.color].message);
     clearTurn();
     checkWin();
     return;
   }
 
   lockBoard = true;
-  roundMessage.textContent = "괜찮아요. 다시 기억해 볼까요?";
+  setRoundMessage("괜찮아요. 다시 기억해 볼까요?");
   firstCard.classList.add("is-wrong");
   secondCard.classList.add("is-wrong");
 
@@ -161,7 +167,7 @@ function clearTurn() {
 
 function checkWin() {
   if (foundPairs === cardColors.length / 2) {
-    roundMessage.textContent = `색깔 짝을 다 찾았어요! ${moves}번 만에 성공!`;
+    setRoundMessage(`색깔 짝을 다 찾았어요! ${moves}번 만에 성공!`);
   }
 }
 
