@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>예수님 카드 뒤집기</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="scene" aria-hidden="true">
+      <div class="bunting bunting-left">
+        <span></span><span></span><span></span><span></span>
+      </div>
+      <div class="bunting bunting-right">
+        <span></span><span></span><span></span><span></span>
+      </div>
+      <div class="cloud cloud-one"></div>
+      <div class="cloud cloud-two"></div>
+      <div class="balloons">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="village">
+        <div class="church">
+          <span class="cross"></span>
+          <span class="roof"></span>
+        </div>
+        <div class="shop">
+          <span>선물</span>
+        </div>
+        <div class="house house-one"></div>
+        <div class="house house-two"></div>
+      </div>
+    </div>
+
+    <main class="game-shell">
+      <section class="message-panel" aria-live="polite">
+        <strong id="roundMessage">같은 색 예수님 카드를 찾아보세요!</strong>
+      </section>
+
+      <section class="board-wrap" aria-label="카드판">
+        <div class="board" id="gameBoard"></div>
+      </section>
+
+      <section class="hud-panel" aria-label="게임 정보">
+        <div class="score-row" aria-live="polite">
+          <div class="score-box">
+            <span>찾은 짝</span>
+            <strong id="matchCount">0</strong>
+          </div>
+          <div class="score-box">
+            <span>뒤집기</span>
+            <strong id="moveCount">0</strong>
+          </div>
+          <button class="reset-button" id="resetButton" type="button">다시 섞기</button>
+        </div>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
