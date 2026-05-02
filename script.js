@@ -47,23 +47,26 @@ let foundPairs = 0;
 let moves = 0;
 let rouletteRotation = 0;
 let isRouletteSpinning = false;
+let rouletteAudioContext = null;
+let rouletteSoundTimer = null;
 
 const maxMoves = 10;
+const rouletteSpinDuration = 3400;
 const roulettePrizes = [
   "예수님 카드 1장",
   "예수님 카드 2장",
   "예수님 카드 3장",
   "예수님 카드 1장",
-  "한번 더",
+  "한번 더!",
   "예수님 카드 2장",
   "예수님 카드 1장",
   "예수님 카드 3장",
   "예수님 카드 2장",
-  "노란색 카드 1장",
+  "노랑색 카드 1장",
   "예수님 카드 1장",
   "예수님 카드 3장",
   "예수님 카드 2장",
-  "한번 더",
+  "한번 더!",
 ];
 
 function setRoundMessage(message) {
@@ -255,6 +258,75 @@ function closeRoulette() {
   bonusButton.focus();
 }
 
+function getRouletteAudioContext() {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+
+  if (!AudioContextClass) {
+    return null;
+  }
+
+  if (!rouletteAudioContext) {
+    rouletteAudioContext = new AudioContextClass();
+  }
+
+  if (rouletteAudioContext.state === "suspended") {
+    rouletteAudioContext.resume();
+  }
+
+  return rouletteAudioContext;
+}
+
+function playRouletteTick(progress) {
+  const audioContext = getRouletteAudioContext();
+
+  if (!audioContext) {
+    return;
+  }
+
+  const now = audioContext.currentTime;
+  const oscillator = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+
+  oscillator.type = "square";
+  oscillator.frequency.setValueAtTime(620 + progress * 260, now);
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.08, now + 0.006);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
+
+  oscillator.connect(gain);
+  gain.connect(audioContext.destination);
+  oscillator.start(now);
+  oscillator.stop(now + 0.05);
+}
+
+function stopRouletteSound() {
+  if (rouletteSoundTimer) {
+    window.clearTimeout(rouletteSoundTimer);
+    rouletteSoundTimer = null;
+  }
+}
+
+function startRouletteSound(duration) {
+  stopRouletteSound();
+
+  const startedAt = window.performance.now();
+
+  function scheduleTick() {
+    const elapsed = window.performance.now() - startedAt;
+
+    if (elapsed >= duration) {
+      rouletteSoundTimer = null;
+      return;
+    }
+
+    const progress = Math.min(elapsed / duration, 1);
+    playRouletteTick(progress);
+    rouletteSoundTimer = window.setTimeout(scheduleTick, 42 + progress * 150);
+  }
+
+  scheduleTick();
+}
+
 function spinRoulette() {
   if (isRouletteSpinning) {
     return;
@@ -264,18 +336,23 @@ function spinRoulette() {
   const sliceAngle = 360 / roulettePrizes.length;
   const targetCenter = prizeIndex * sliceAngle;
   const extraTurns = 5 + Math.floor(Math.random() * 3);
+  const currentRotation = ((rouletteRotation % 360) + 360) % 360;
+  const targetRotation = (360 - targetCenter) % 360;
+  const rotationDelta = (targetRotation - currentRotation + 360) % 360;
 
   isRouletteSpinning = true;
   spinButton.disabled = true;
   rouletteResult.textContent = "룰렛이 돌고 있어요.";
-  rouletteRotation += extraTurns * 360 + (360 - targetCenter);
+  rouletteRotation += extraTurns * 360 + rotationDelta;
   rouletteWheel.style.transform = `rotate(${rouletteRotation}deg)`;
+  startRouletteSound(rouletteSpinDuration);
 
   window.setTimeout(() => {
+    stopRouletteSound();
     isRouletteSpinning = false;
     spinButton.disabled = false;
     rouletteResult.textContent = `${roulettePrizes[prizeIndex]} 당첨!`;
-  }, 3400);
+  }, rouletteSpinDuration);
 }
 
 resetButton.addEventListener("click", startGame);
